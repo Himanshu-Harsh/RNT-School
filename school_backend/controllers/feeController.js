@@ -290,8 +290,9 @@ exports.collectFee = async (req, res) => {
         admission_no, student_name, classname, roll_no, month, year,
         monthly_fees, exam_fees, annual_fee, other_fee, bus_fee, 
         dress_fee, book_fee, fine, discount, total_amount, 
-        payment_date, notes, payment_mode, receipt_no, uses_bus
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        payment_date, notes, payment_mode, receipt_no, uses_bus,
+        is_partial, payment_type, payment_status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -312,10 +313,13 @@ exports.collectFee = async (req, res) => {
       Number(discount) || 0,
       Number(paid_amount) || 0,
       new Date(),
-      notes,
-      paymentMode,
-      receiptNo,
+      notes || "",
+      paymentMode || "Cash",
+      receiptNo || `rec_${Date.now()}`,
       usesBus ? 1 : 0,
+      is_partial ? 1 : 0,
+      payment_type || "full",
+      "Paid"
     ];
 
     const [result] = await db.execute(query, values);
