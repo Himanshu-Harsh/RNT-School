@@ -158,16 +158,16 @@ const Hero3D = () => {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-6 pt-8">
               <div className="text-center group">
-                <div className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1 group-hover:scale-110 transition-transform">{content.home.stats.students.value}</div>
-                <div className="text-sm text-foreground/70 font-medium">{content.home.stats.students.label}</div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1 group-hover:scale-110 transition-transform">{content.home?.stats?.students?.value}</div>
+                <div className="text-sm text-foreground/70 font-medium">{content.home?.stats?.students?.label}</div>
               </div>
               <div className="text-center group">
-                <div className="text-4xl font-bold bg-gradient-to-r from-secondary to-tertiary bg-clip-text text-transparent mb-1 group-hover:scale-110 transition-transform">{content.home.stats.ratio.value}</div>
-                <div className="text-sm text-foreground/70 font-medium">{content.home.stats.ratio.label}</div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-secondary to-tertiary bg-clip-text text-transparent mb-1 group-hover:scale-110 transition-transform">{content.home?.stats?.ratio?.value}</div>
+                <div className="text-sm text-foreground/70 font-medium">{content.home?.stats?.ratio?.label}</div>
               </div>
               <div className="text-center group">
-                <div className="text-4xl font-bold bg-gradient-to-r from-tertiary to-accent bg-clip-text text-transparent mb-1 group-hover:scale-110 transition-transform">{content.home.stats.years.value}</div>
-                <div className="text-sm text-foreground/70 font-medium">{content.home.stats.years.label}</div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-tertiary to-accent bg-clip-text text-transparent mb-1 group-hover:scale-110 transition-transform">{content.home?.stats?.years?.value}</div>
+                <div className="text-sm text-foreground/70 font-medium">{content.home?.stats?.years?.label}</div>
               </div>
             </div>
           </div>

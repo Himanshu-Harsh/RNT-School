@@ -135,7 +135,32 @@ export const getLandingPageContent = async (): Promise<LandingPageContent> => {
     if (!data || Object.keys(data).length === 0) {
       return DEFAULT_CONTENT;
     }
-    return data;
+    // Deep-merge with defaults to fill any missing nested properties
+    return {
+      home: {
+        ...DEFAULT_CONTENT.home,
+        ...data.home,
+        stats: {
+          students: { ...DEFAULT_CONTENT.home.stats.students, ...data.home?.stats?.students },
+          ratio: { ...DEFAULT_CONTENT.home.stats.ratio, ...data.home?.stats?.ratio },
+          years: { ...DEFAULT_CONTENT.home.stats.years, ...data.home?.stats?.years },
+        },
+      },
+      about: {
+        ...DEFAULT_CONTENT.about,
+        ...data.about,
+        features: data.about?.features?.length ? data.about.features : DEFAULT_CONTENT.about.features,
+      },
+      gallery: {
+        ...DEFAULT_CONTENT.gallery,
+        ...data.gallery,
+        images: data.gallery?.images?.length ? data.gallery.images : DEFAULT_CONTENT.gallery.images,
+      },
+      contact: {
+        ...DEFAULT_CONTENT.contact,
+        ...data.contact,
+      },
+    };
   } catch (error) {
     console.error("Error loading landing page content:", error);
   }

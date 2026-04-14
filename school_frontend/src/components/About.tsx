@@ -19,7 +19,7 @@ const About = () => {
     getLandingPageContent().then(setContent);
   }, []);
   
-  const features = content.about.features.map((feature, index) => {
+  const features = (content.about?.features || []).map((feature, index) => {
     const icons = [BookOpen, Users, Award, Target, Palette, Heart];
     const colors = ["text-primary", "text-secondary", "text-tertiary", "text-accent", "text-quaternary", "text-secondary"];
     const bgColors = [
