@@ -1,5 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '@/lib/api';
 
 interface StudentAdvanceState {
   advanceBalance: number;
@@ -20,14 +19,7 @@ export const fetchStudentAdvance = createAsyncThunk(
   'studentAdvance/fetchByAdmissionNo',
   async (admissionNo: string, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      const config = {
-        headers: { Authorization: `Bearer ${token}` },
-      };
-      const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/fees/advance/${admissionNo}`,
-        config
-      );
+      const { data } = await api.get(`/api/fees/advance/${admissionNo}`);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch advance balance');
@@ -40,14 +32,7 @@ export const fetchAllStudentAdvances = createAsyncThunk(
   'studentAdvance/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      const config = {
-        headers: { Authorization: `Bearer ${token}` },
-      };
-      const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/fees/advance/all`,
-        config
-      );
+      const { data } = await api.get('/api/fees/advance/all');
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch all advances');

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api, { API_BASE_URL } from "@/lib/api";
 import { useDispatch, useSelector } from "react-redux";
 import { listStudents, Student } from "@/store/slices/studentSlice";
 import { AppDispatch, RootState } from "@/store";
@@ -78,20 +79,9 @@ const AdmitCardPage = () => {
         console.log("Loading photo via API:", selectedStudent.image);
         
         // Use backend API to get base64 image
-        const response = await fetch(
-          `http://localhost:5000/api/image/base64?path=${encodeURIComponent(selectedStudent.image)}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-          }
-        );
-        
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
-        }
-        
-        const data = await response.json();
+        const { data } = await api.get('/api/image/base64', {
+          params: { path: selectedStudent.image }
+        });
         
         if (data.success && data.data) {
           studentPhotoData = data.data;

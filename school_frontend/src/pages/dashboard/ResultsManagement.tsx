@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api, { API_BASE_URL } from "@/lib/api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -102,17 +103,9 @@ const ResultsManagement = () => {
   const examTypes = ["Mid Term", "Final Term", "Unit Test 1", "Unit Test 2", "Unit Test 3", "Pre-Board", "Board Exam"];
 
   // Load grading config from database on mount
-  useEffect(() => {
-    const fetchGradingConfig = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/settings/grading_config', {
-          headers: {
-            'Authorization': `Bearer ${userInfo?.token}`,
-          },
-        });
+        const { data } = await api.get('/api/settings/grading_config');
         
-        if (response.ok) {
-          const data = await response.json();
+        if (data) {
           console.log('Raw database response:', data);
           
           if (data.setting_value) {
@@ -462,21 +455,13 @@ const ResultsManagement = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/subjects', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          class: subjectClass,
-          subject_name: newSubjectName,
-          subject_code: newSubjectCode
-        })
+      const { data } = await api.post('/api/subjects', {
+        class: subjectClass,
+        subject_name: newSubjectName,
+        subject_code: newSubjectCode
       });
 
-      if (response.ok) {
+      if (data) {
         toast.success("Subject added successfully");
         setNewSubjectName("");
         setNewSubjectCode("");
@@ -494,15 +479,9 @@ const ResultsManagement = () => {
 
   const deleteSubject = async (subjectId: number) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/subjects/${subjectId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const { data } = await api.delete(`/api/subjects/${subjectId}`);
 
-      if (response.ok) {
+      if (data) {
         toast.success("Subject deleted successfully");
         if (subjectClass) {
           fetchSubjectsForClass(subjectClass);
@@ -567,19 +546,11 @@ const ResultsManagement = () => {
     let studentPhotoData: string | null = null;
     if (entry.image) {
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/image/base64?path=${encodeURIComponent(entry.image)}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.data) {
-            studentPhotoData = data.data;
-          }
+        const { data } = await api.get('/api/image/base64', {
+          params: { path: entry.image }
+        });
+        if (data.success && data.data) {
+          studentPhotoData = data.data;
         }
       } catch (e) {
         console.log('Student photo not loaded', e);
@@ -896,15 +867,11 @@ const ResultsManagement = () => {
       let studentPhotoData: string | null = null;
       if (entry.image) {
         try {
-          const response = await fetch(
-            `http://localhost:5000/api/image/base64?path=${encodeURIComponent(entry.image)}`,
-            { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.data) {
-              studentPhotoData = data.data;
-            }
+          const { data } = await api.get('/api/image/base64', {
+            params: { path: entry.image }
+          });
+          if (data.success && data.data) {
+            studentPhotoData = data.data;
           }
         } catch (e) {
           console.error("Error loading student photo:", e);
@@ -1485,27 +1452,13 @@ const ResultsManagement = () => {
                           console.log('Saving grading config to database:', gradingConfig);
                           
                           // Save config to database
-                          const response = await fetch('http://localhost:5000/api/settings', {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                              'Authorization': `Bearer ${userInfo?.token}`,
-                            },
-                            body: JSON.stringify({
-                              setting_key: 'grading_config',
-                              setting_value: gradingConfig,
-                              setting_type: 'json',
-                              description: 'Grading configuration for result calculation'
-                            }),
+                          const { data: result } = await api.post('/api/settings', {
+                            setting_key: 'grading_config',
+                            setting_value: gradingConfig,
+                            setting_type: 'json',
+                            description: 'Grading configuration for result calculation'
                           });
                           
-                          if (!response.ok) {
-                            const errorData = await response.json();
-                            console.error('Save failed:', errorData);
-                            throw new Error('Failed to save grading configuration');
-                          }
-                          
-                          const result = await response.json();
                           console.log('Save successful:', result);
                           
                           // Recalculate all grades

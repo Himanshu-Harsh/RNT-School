@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import api, { API_BASE_URL } from '@/lib/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = `${API_BASE_URL}/api`;
 
 // ============================================
 // ASSIGNMENTS THUNKS
@@ -8,130 +9,97 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const fetchAllAssignments = createAsyncThunk(
   'assignments/fetchAll',
-  async (filters: { classname?: string; subject?: string; teacher_id?: string } = {}, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const params = new URLSearchParams();
-    if (filters.classname) params.append('classname', filters.classname);
-    if (filters.subject) params.append('subject', filters.subject);
-    if (filters.teacher_id) params.append('teacher_id', filters.teacher_id);
-    
-    const res = await fetch(`${API_URL}/assignments?${params}`, {
-      headers: { Authorization: `Bearer ${auth.userInfo?.token}` }
-    });
-    if (!res.ok) return rejectWithValue('Failed to fetch assignments');
-    return res.json();
+  async (filters: { classname?: string; subject?: string; teacher_id?: string } = {}, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get('/api/assignments', { params: filters });
+      return data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch assignments');
+    }
   }
 );
 
 export const fetchAssignmentsByClass = createAsyncThunk(
   'assignments/fetchByClass',
-  async (classname: string, { getState, rejectWithValue }) => {
+  async (classname: string, { rejectWithValue }) => {
     try {
-      const { auth } = getState() as any;
-      const res = await fetch(`${API_URL}/assignments/class/${classname}`, {
-        headers: { Authorization: `Bearer ${auth.userInfo?.token}` }
-      });
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        return rejectWithValue(errData.message || 'Failed to fetch assignments');
-      }
-      return res.json();
+      const { data } = await api.get(`/api/assignments/class/${classname}`);
+      return data;
     } catch (err: any) {
-      return rejectWithValue(err.message || 'Network error fetching assignments');
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch assignments');
     }
   }
 );
 
 export const createAssignment = createAsyncThunk(
   'assignments/create',
-  async (data: any, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/assignments`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${auth.userInfo?.token}` 
-      },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) return rejectWithValue('Failed to create assignment');
-    return res.json();
+  async (data: any, { rejectWithValue }) => {
+    try {
+      const { data: result } = await api.post('/api/assignments', data);
+      return result;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to create assignment');
+    }
   }
 );
 
 export const updateAssignment = createAsyncThunk(
   'assignments/update',
-  async ({ id, data }: { id: string; data: any }, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/assignments/${id}`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${auth.userInfo?.token}` 
-      },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) return rejectWithValue('Failed to update assignment');
-    return res.json();
+  async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
+    try {
+      const { data: result } = await api.put(`/api/assignments/${id}`, data);
+      return result;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to update assignment');
+    }
   }
 );
 
 export const deleteAssignment = createAsyncThunk(
   'assignments/delete',
-  async (id: string, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/assignments/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${auth.userInfo?.token}` }
-    });
-    if (!res.ok) return rejectWithValue('Failed to delete assignment');
-    return id;
+  async (id: string, { rejectWithValue }) => {
+    try {
+      await api.delete(`/api/assignments/${id}`);
+      return id;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to delete assignment');
+    }
   }
 );
 
 export const submitAssignment = createAsyncThunk(
   'assignments/submit',
-  async (data: any, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/assignments/submit`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${auth.userInfo?.token}` 
-      },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) return rejectWithValue('Failed to submit assignment');
-    return res.json();
+  async (data: any, { rejectWithValue }) => {
+    try {
+      const { data: result } = await api.post('/api/assignments/submit', data);
+      return result;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to submit assignment');
+    }
   }
 );
 
 export const fetchAssignmentSubmissions = createAsyncThunk(
   'assignments/fetchSubmissions',
-  async (assignmentId: string, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/assignments/${assignmentId}/submissions`, {
-      headers: { Authorization: `Bearer ${auth.userInfo?.token}` }
-    });
-    if (!res.ok) return rejectWithValue('Failed to fetch submissions');
-    return res.json();
+  async (assignmentId: string, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`/api/assignments/${assignmentId}/submissions`);
+      return data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch submissions');
+    }
   }
 );
 
 export const gradeAssignment = createAsyncThunk(
   'assignments/grade',
-  async ({ id, data }: { id: string; data: any }, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/assignments/submissions/${id}/grade`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${auth.userInfo?.token}` 
-      },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) return rejectWithValue('Failed to grade assignment');
-    return res.json();
+  async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
+    try {
+      const { data: result } = await api.put(`/api/assignments/submissions/${id}/grade`, data);
+      return result;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to grade assignment');
+    }
   }
 );
 
@@ -141,142 +109,109 @@ export const gradeAssignment = createAsyncThunk(
 
 export const fetchAllQuizzes = createAsyncThunk(
   'quizzes/fetchAll',
-  async (filters: { classname?: string; subject?: string; teacher_id?: string } = {}, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const params = new URLSearchParams();
-    if (filters.classname) params.append('classname', filters.classname);
-    if (filters.subject) params.append('subject', filters.subject);
-    if (filters.teacher_id) params.append('teacher_id', filters.teacher_id);
-    
-    const res = await fetch(`${API_URL}/quizzes?${params}`, {
-      headers: { Authorization: `Bearer ${auth.userInfo?.token}` }
-    });
-    if (!res.ok) return rejectWithValue('Failed to fetch quizzes');
-    return res.json();
+  async (filters: { classname?: string; subject?: string; teacher_id?: string } = {}, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get('/api/quizzes', { params: filters });
+      return data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch quizzes');
+    }
   }
 );
 
 export const fetchQuizzesByClass = createAsyncThunk(
   'quizzes/fetchByClass',
-  async (classname: string, { getState, rejectWithValue }) => {
+  async (classname: string, { rejectWithValue }) => {
     try {
-      const { auth } = getState() as any;
-      const res = await fetch(`${API_URL}/quizzes/class/${classname}`, {
-        headers: { Authorization: `Bearer ${auth.userInfo?.token}` }
-      });
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        return rejectWithValue(errData.message || 'Failed to fetch quizzes');
-      }
-      return res.json();
+      const { data } = await api.get(`/api/quizzes/class/${classname}`);
+      return data;
     } catch (err: any) {
-      return rejectWithValue(err.message || 'Network error fetching quizzes');
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch quizzes');
     }
   }
 );
 
 export const fetchQuizForTaking = createAsyncThunk(
   'quizzes/fetchForTaking',
-  async (quizId: string, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/quizzes/${quizId}/take`, {
-      headers: { Authorization: `Bearer ${auth.userInfo?.token}` }
-    });
-    if (!res.ok) return rejectWithValue('Failed to fetch quiz');
-    return res.json();
+  async (quizId: string, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`/api/quizzes/${quizId}/take`);
+      return data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch quiz');
+    }
   }
 );
 
 export const createQuiz = createAsyncThunk(
   'quizzes/create',
-  async (data: any, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/quizzes`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${auth.userInfo?.token}` 
-      },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) return rejectWithValue('Failed to create quiz');
-    return res.json();
+  async (data: any, { rejectWithValue }) => {
+    try {
+      const { data: result } = await api.post('/api/quizzes', data);
+      return result;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to create quiz');
+    }
   }
 );
 
 export const updateQuiz = createAsyncThunk(
   'quizzes/update',
-  async ({ id, data }: { id: string; data: any }, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/quizzes/${id}`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${auth.userInfo?.token}` 
-      },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) return rejectWithValue('Failed to update quiz');
-    return res.json();
+  async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
+    try {
+      const { data: result } = await api.put(`/api/quizzes/${id}`, data);
+      return result;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to update quiz');
+    }
   }
 );
 
 export const deleteQuiz = createAsyncThunk(
   'quizzes/delete',
-  async (id: string, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/quizzes/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${auth.userInfo?.token}` }
-    });
-    if (!res.ok) return rejectWithValue('Failed to delete quiz');
-    return id;
+  async (id: string, { rejectWithValue }) => {
+    try {
+      await api.delete(`/api/quizzes/${id}`);
+      return id;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to delete quiz');
+    }
   }
 );
 
 export const submitQuiz = createAsyncThunk(
   'quizzes/submit',
-  async (data: any, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/quizzes/submit`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${auth.userInfo?.token}` 
-      },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) return rejectWithValue('Failed to submit quiz');
-    return res.json();
+  async (data: any, { rejectWithValue }) => {
+    try {
+      const { data: result } = await api.post('/api/quizzes/submit', data);
+      return result;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to submit quiz');
+    }
   }
 );
 
 export const fetchQuizSubmissions = createAsyncThunk(
   'quizzes/fetchSubmissions',
-  async (quizId: string, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/quizzes/${quizId}/submissions`, {
-      headers: { Authorization: `Bearer ${auth.userInfo?.token}` }
-    });
-    if (!res.ok) return rejectWithValue('Failed to fetch submissions');
-    return res.json();
+  async (quizId: string, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`/api/quizzes/${quizId}/submissions`);
+      return data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch submissions');
+    }
   }
 );
 
 export const gradeQuiz = createAsyncThunk(
   'quizzes/grade',
-  async ({ id, data }: { id: string; data: any }, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/quizzes/submissions/${id}/grade`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${auth.userInfo?.token}` 
-      },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) return rejectWithValue('Failed to grade quiz');
-    return res.json();
+  async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
+    try {
+      const { data: result } = await api.put(`/api/quizzes/submissions/${id}/grade`, data);
+      return result;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to grade quiz');
+    }
   }
 );
 
@@ -287,28 +222,26 @@ export const gradeQuiz = createAsyncThunk(
 // Check if student already submitted an assignment
 export const fetchStudentSubmission = createAsyncThunk(
   'assignments/fetchStudentSubmission',
-  async ({ assignmentId, admissionNo }: { assignmentId: string; admissionNo: string }, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/assignments/${assignmentId}/submission/${admissionNo}`, {
-      headers: { Authorization: `Bearer ${auth.userInfo?.token}` }
-    });
-    if (!res.ok) return rejectWithValue('Failed to fetch submission');
-    const data = await res.json();
-    return { assignmentId, submission: data };
+  async ({ assignmentId, admissionNo }: { assignmentId: string; admissionNo: string }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`/api/assignments/${assignmentId}/submission/${admissionNo}`);
+      return { assignmentId, submission: data };
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch submission');
+    }
   }
 );
 
 // Check if student already submitted a quiz
 export const fetchStudentQuizSubmission = createAsyncThunk(
   'quizzes/fetchStudentSubmission',
-  async ({ quizId, admissionNo }: { quizId: string; admissionNo: string }, { getState, rejectWithValue }) => {
-    const { auth } = getState() as any;
-    const res = await fetch(`${API_URL}/quizzes/${quizId}/submission/${admissionNo}`, {
-      headers: { Authorization: `Bearer ${auth.userInfo?.token}` }
-    });
-    if (!res.ok) return rejectWithValue('Failed to fetch quiz submission');
-    const data = await res.json();
-    return { quizId, submission: data };
+  async ({ quizId, admissionNo }: { quizId: string; admissionNo: string }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(`/api/quizzes/${quizId}/submission/${admissionNo}`);
+      return { quizId, submission: data };
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch quiz submission');
+    }
   }
 );
 

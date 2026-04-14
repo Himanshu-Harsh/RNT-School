@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import api, { API_BASE_URL } from "@/lib/api";
 import { useDispatch, useSelector } from "react-redux";
 import { listStudents, Student } from "@/store/slices/studentSlice";
 import { AppDispatch, RootState } from "@/store";
@@ -158,21 +159,13 @@ const AdmitCardManagement = () => {
         let studentPhotoData: string | null = null;
         if (student.image) {
           try {
-            const response = await fetch(
-              `http://localhost:5000/api/image/base64?path=${encodeURIComponent(student.image)}`,
-              {
-                headers: {
-                  'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-              }
-            );
-            
-            if (response.ok) {
-              const data = await response.json();
-              if (data.success && data.data) {
-                studentPhotoData = data.data;
-              }
-            }
+        const { data } = await api.get('/api/image/base64', {
+          params: { path: student.image }
+        });
+
+        if (data.success && data.data) {
+          studentPhotoData = data.data;
+        }
           } catch (e) {
             console.error("Error loading student photo:", e);
           }
@@ -381,24 +374,14 @@ const AdmitCardManagement = () => {
           try {
             console.log("Loading photo via API:", student.image);
             
-            const response = await fetch(
-              `http://localhost:5000/api/image/base64?path=${encodeURIComponent(student.image)}`,
-              {
-                headers: {
-                  'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-              }
-            );
-            
-            if (response.ok) {
-              const data = await response.json();
-              if (data.success && data.data) {
-                studentPhotoData = data.data;
-                console.log("Photo loaded successfully, data length:", studentPhotoData.length);
-              }
-            } else {
-              console.error(`Photo API error: ${response.status}`);
-            }
+        const { data } = await api.get('/api/image/base64', {
+          params: { path: student.image }
+        });
+
+        if (data.success && data.data) {
+          studentPhotoData = data.data;
+          console.log("Photo loaded successfully, data length:", studentPhotoData.length);
+        }
           } catch (e) {
             console.error("Error loading student photo:", e);
           }

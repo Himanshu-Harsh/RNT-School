@@ -9,6 +9,7 @@ import { Printer, AlertCircle, CheckCircle2, XCircle, Loader2 } from "lucide-rea
 import { AdmitCardTemplate } from "@/components/print/AdmitCardTemplate";
 import { fetchExamSchedule, fetchAdmitCardAccess } from "@/store/slices/examSlice";
 import { listStudents } from "@/store/slices/studentSlice";
+import api, { API_BASE_URL } from "@/lib/api";
 
 const StudentAdmitCard = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -24,10 +25,8 @@ const StudentAdmitCard = () => {
 
   const printRef = useRef<HTMLDivElement>(null);
 
-  // Backend URL (handles both localhost and deployed versions)
-  const BACKEND_URL = import.meta.env.VITE_API_URL 
-    ? import.meta.env.VITE_API_URL.replace('/api', '') 
-    : "http://localhost:5000";
+  // Use the dynamic API base URL
+  const BACKEND_URL = API_BASE_URL;
 
   useEffect(() => {
     dispatch(listStudents());

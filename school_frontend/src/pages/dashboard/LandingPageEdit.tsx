@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import api, { API_BASE_URL } from "@/lib/api";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = `${API_BASE_URL}/api`;
 
 interface GalleryImage {
   id: number;
@@ -173,9 +174,7 @@ const LandingPageEdit = () => {
     try {
       setLoading(true);
       
-      const contentRes = await fetch(`${API_URL}/landing/content`);
-      const contentData = await contentRes.json();
-      
+      const { data: contentData } = await api.get('/api/landing/content');
       if (contentData.success) {
         setContent(contentData.data.content || defaultContent);
         const aboutFeatures = contentData.data.content?.about?.features;
@@ -188,18 +187,12 @@ const LandingPageEdit = () => {
         }
       }
 
-      const galleryRes = await fetch(`${API_URL}/landing/gallery`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const galleryData = await galleryRes.json();
+      const { data: galleryData } = await api.get('/api/landing/gallery');
       if (galleryData.success) {
         setGalleryImages(galleryData.data || []);
       }
 
-      const noticesRes = await fetch(`${API_URL}/landing/notices`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const noticesData = await noticesRes.json();
+      const { data: noticesData } = await api.get('/api/landing/notices');
       if (noticesData.success) {
         setNotices(noticesData.data || []);
       }
@@ -275,16 +268,7 @@ const LandingPageEdit = () => {
         }
       });
 
-      const res = await fetch(`${API_URL}/landing/content/bulk`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ updates })
-      });
-
-      const data = await res.json();
+      const { data } = await api.put('/api/landing/content/bulk', { updates });
       if (data.success) {
         toast.success("Landing page content saved successfully! 🎉");
       } else {
@@ -345,46 +329,36 @@ const LandingPageEdit = () => {
 
     setUploadingImage(true);
     try {
-      let res;
+      let finalData;
       
       if (newImage.uploadType === 'file') {
-        // Upload file from computer
         const formData = new FormData();
         formData.append('image', newImage.file!);
         formData.append('title', newImage.title || 'Gallery Image');
         formData.append('category', newImage.category);
         formData.append('emoji', newImage.emoji);
 
-        res = await fetch(`${API_URL}/landing/gallery`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData
+        const { data } = await api.post('/api/landing/gallery', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
         });
+        finalData = data;
       } else {
-        // Add external URL (Google Drive, etc.)
-        res = await fetch(`${API_URL}/landing/gallery/external`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}` 
-          },
-          body: JSON.stringify({
-            title: newImage.title || 'Gallery Image',
-            category: newImage.category,
-            emoji: newImage.emoji,
-            external_url: newImage.externalUrl
-          })
+        const { data } = await api.post('/api/landing/gallery/external', {
+          title: newImage.title || 'Gallery Image',
+          category: newImage.category,
+          emoji: newImage.emoji,
+          external_url: newImage.externalUrl
         });
+        finalData = data;
       }
 
-      const data = await res.json();
-      if (data.success) {
+      if (finalData.success) {
         toast.success("Image added successfully! 🎉");
         setShowUploadDialog(false);
         setNewImage({ file: null, title: "", category: "Activities", emoji: "📷", uploadType: "file", externalUrl: "" });
         fetchAllData();
       } else {
-        toast.error(data.message || "Failed to add image");
+        toast.error(finalData.message || "Failed to add image");
       }
     } catch (error) {
       console.error("Error adding image:", error);
@@ -398,12 +372,7 @@ const LandingPageEdit = () => {
     if (!confirm("Are you sure you want to delete this image?")) return;
 
     try {
-      const res = await fetch(`${API_URL}/landing/gallery/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      const data = await res.json();
+      const { data } = await api.delete(`/api/landing/gallery/${id}`);
       if (data.success) {
         setGalleryImages(galleryImages.filter(img => img.id !== id));
         toast.success("Image deleted successfully");
@@ -417,16 +386,11 @@ const LandingPageEdit = () => {
 
   const toggleImageActive = async (image: GalleryImage) => {
     try {
-      const res = await fetch(`${API_URL}/landing/gallery/${image.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ ...image, is_active: !image.is_active })
+      const { data } = await api.put(`/api/landing/gallery/${image.id}`, { 
+        ...image, 
+        is_active: !image.is_active 
       });
 
-      const data = await res.json();
       if (data.success) {
         setGalleryImages(galleryImages.map(img => 
           img.id === image.id ? { ...img, is_active: !img.is_active } : img
@@ -446,31 +410,18 @@ const LandingPageEdit = () => {
 
     try {
       if (editingNotice) {
-        const res = await fetch(`${API_URL}/landing/notices/${editingNotice.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({ ...newNotice, is_active: editingNotice.is_active })
+        const { data } = await api.put(`/api/landing/notices/${editingNotice.id}`, { 
+          ...newNotice, 
+          is_active: editingNotice.is_active 
         });
 
-        const data = await res.json();
         if (data.success) {
           toast.success("Notice updated successfully!");
           fetchAllData();
         }
       } else {
-        const res = await fetch(`${API_URL}/landing/notices`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(newNotice)
-        });
+        const { data } = await api.post('/api/landing/notices', newNotice);
 
-        const data = await res.json();
         if (data.success) {
           toast.success("Notice created successfully!");
           fetchAllData();
@@ -489,12 +440,8 @@ const LandingPageEdit = () => {
     if (!confirm("Are you sure you want to delete this notice?")) return;
 
     try {
-      const res = await fetch(`${API_URL}/landing/notices/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await api.delete(`/api/landing/notices/${id}`);
 
-      const data = await res.json();
       if (data.success) {
         setNotices(notices.filter(n => n.id !== id));
         toast.success("Notice deleted successfully");
@@ -506,16 +453,11 @@ const LandingPageEdit = () => {
 
   const toggleNoticeActive = async (notice: Notice) => {
     try {
-      const res = await fetch(`${API_URL}/landing/notices/${notice.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ ...notice, is_active: !notice.is_active })
+      const { data } = await api.put(`/api/landing/notices/${notice.id}`, { 
+        ...notice, 
+        is_active: !notice.is_active 
       });
 
-      const data = await res.json();
       if (data.success) {
         setNotices(notices.map(n => 
           n.id === notice.id ? { ...n, is_active: !n.is_active } : n
@@ -880,7 +822,7 @@ const LandingPageEdit = () => {
                       <Card key={image.id} className={`overflow-hidden ${!image.is_active ? 'opacity-50' : ''}`}>
                         <div className="relative h-40 bg-gray-100">
                           <img 
-                            src={image.image_type === 'external' ? image.external_url : `http://localhost:5000${image.image_path}`} 
+                            src={image.image_type === 'external' ? image.external_url : `${API_BASE_URL}${image.image_path}`} 
                             alt={image.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {

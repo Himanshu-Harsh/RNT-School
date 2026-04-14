@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api, { API_BASE_URL } from "@/lib/api";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { fetchResults, ExamResult } from "@/store/slices/resultSlice";
@@ -165,19 +166,11 @@ const StudentResults = () => {
     let studentPhotoData: string | null = null;
     if (userInfo?.image) {
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/image/base64?path=${encodeURIComponent(userInfo.image)}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${userInfo.token}`
-            }
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.data) {
-            studentPhotoData = data.data;
-          }
+        const { data } = await api.get('/api/image/base64', {
+          params: { path: userInfo.image }
+        });
+        if (data.success && data.data) {
+          studentPhotoData = data.data;
         }
       } catch (e) {
         console.log('Student photo not loaded', e);

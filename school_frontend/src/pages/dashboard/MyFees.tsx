@@ -18,7 +18,7 @@ import {
 import jsPDF from "jspdf";
 import schoolLogo from "@/assets/school-logo.png";
 import { toast } from "sonner";
-import axios from "axios";
+import api from "@/lib/api";
 
 // Helper to load Razorpay script dynamically
 const loadRazorpayScript = () => {
@@ -419,8 +419,8 @@ const MyFees = () => {
 
     try {
       // 1. Create Order
-      const { data: orderData } = await axios.post(
-        "http://localhost:5000/api/payment/create-order",
+      const { data: orderData } = await api.post(
+        "/api/payment/create-order",
         { amount: balance, receipt: `receipt_${userInfo?.admission_no}_${Date.now()}` },
         { headers: { Authorization: `Bearer ${userInfo?.token}` } }
       );
@@ -437,8 +437,8 @@ const MyFees = () => {
         handler: async function (response: any) {
           try {
             // 3. Verify Payment
-            const verifyRes = await axios.post(
-              "http://localhost:5000/api/payment/verify",
+            const verifyRes = await api.post(
+              "/api/payment/verify",
               response,
               { headers: { Authorization: `Bearer ${userInfo?.token}` } }
             );
@@ -473,7 +473,7 @@ const MyFees = () => {
                 totalAmount: balance,
               };
               
-              await axios.post("http://localhost:5000/api/fees/pay", paymentPayload, {
+              await api.post("/api/fees/pay", paymentPayload, {
                  headers: { Authorization: `Bearer ${userInfo?.token}` } 
               });
               

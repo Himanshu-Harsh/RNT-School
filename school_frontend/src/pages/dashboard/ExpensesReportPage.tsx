@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api, { API_BASE_URL } from "@/lib/api";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { getSalaryHistory } from "@/store/slices/salarySlice";
@@ -27,14 +28,7 @@ const ExpensesReportPage = () => {
     // Fetch school expenses
     const fetchExpenses = async () => {
       try {
-        const token = userInfo?.token;
-        const response = await fetch('http://localhost:5000/api/expenses', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
+        const { data } = await api.get('/api/expenses');
           const formattedData = data.map((exp: any) => ({
             ...exp,
             amount: parseFloat(exp.amount),

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api, { API_BASE_URL } from "@/lib/api";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { listTeachers } from "@/store/slices/teacherSlice";
@@ -42,14 +43,7 @@ const PayrollPage = () => {
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
-        const token = userInfo?.token;
-        const response = await fetch('http://localhost:5000/api/expenses', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
+        const { data } = await api.get('/api/expenses');
           // Convert amount to number
           const formattedData = data.map((exp: any) => ({
             ...exp,
@@ -335,24 +329,15 @@ const PayrollPage = () => {
 
     // Send to backend
     try {
-      const token = userInfo?.token;
-      const response = await fetch('http://localhost:5000/api/expenses', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          title: expenseDescription,
-          amount: Number(expenseAmount),
-          category: expenseCategory,
-          date: expenseDate,
-          description: expenseDescription
-        })
+      const { data: newExpense } = await api.post('/api/expenses', {
+        title: expenseDescription,
+        amount: Number(expenseAmount),
+        category: expenseCategory,
+        date: expenseDate,
+        description: expenseDescription
       });
       
-      if (response.ok) {
-        const newExpense = await response.json();
+      if (newExpense) {
         // Format the expense data
         const formattedExpense = {
           ...newExpense,

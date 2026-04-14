@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import axios from "axios";
+import api, { API_BASE_URL } from "@/lib/api";
 import { useDispatch, useSelector } from "react-redux";
 import { registerStaff, resetStaffState } from "@/store/slices/staffSlice";
 import { AppDispatch, RootState } from "@/store";
@@ -37,9 +37,8 @@ const StaffRegisterPage = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  // Configuration for API and Server URL
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-  const SERVER_URL = "http://localhost:5000"; 
+  const API_URL = `${API_BASE_URL}/api`;
+  const SERVER_URL = API_BASE_URL; 
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -85,7 +84,7 @@ const StaffRegisterPage = () => {
 
     try {
       setUploading(true);
-      const { data } = await axios.post(`${API_URL}/upload`, formData, {
+      const { data } = await api.post(`/api/upload`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
       });
       setUploading(false);

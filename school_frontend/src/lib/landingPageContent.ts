@@ -1,6 +1,6 @@
-// Landing Page Content Management - API based
+import api, { API_BASE_URL } from "./api";
 
-const API_URL = 'http://localhost:5000/api/landing-content';
+const API_URL = `${API_BASE_URL}/api/landing-content`;
 
 export interface LandingPageContent {
   home: {
@@ -130,40 +130,30 @@ const DEFAULT_CONTENT: LandingPageContent = {
 
 export const getLandingPageContent = async (): Promise<LandingPageContent> => {
   try {
-    const response = await fetch(API_URL);
-    if (response.ok) {
-      const data = await response.json();
-      // If data is empty, return default content
-      if (Object.keys(data).length === 0) {
-        return DEFAULT_CONTENT;
-      }
-      return data;
+    const { data } = await api.get('/api/landing-content');
+    // If data is empty, return default content
+    if (!data || Object.keys(data).length === 0) {
+      return DEFAULT_CONTENT;
     }
+    return data;
   } catch (error) {
     console.error("Error loading landing page content:", error);
   }
   return DEFAULT_CONTENT;
 };
 
-export const saveLandingPageContent = async (content: LandingPageContent, token: string): Promise<boolean> => {
+export const saveLandingPageContent = async (content: LandingPageContent): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_URL}/bulk`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(content)
-    });
-    return response.ok;
+    await api.put('/api/landing-content/bulk', content);
+    return true;
   } catch (error) {
     console.error("Error saving landing page content:", error);
     return false;
   }
 };
 
-export const resetLandingPageContent = async (token: string): Promise<boolean> => {
-  return saveLandingPageContent(DEFAULT_CONTENT, token);
+export const resetLandingPageContent = async (): Promise<boolean> => {
+  return saveLandingPageContent(DEFAULT_CONTENT);
 };
 
 export { DEFAULT_CONTENT };

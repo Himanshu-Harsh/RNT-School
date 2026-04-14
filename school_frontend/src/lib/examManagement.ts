@@ -1,6 +1,6 @@
-// Exam Schedule & Admit Card Management
+import api, { API_BASE_URL } from "./api";
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = `${API_BASE_URL}/api`;
 
 export interface ExamSubject {
   subject: string;
@@ -26,31 +26,13 @@ export interface AdmitCardAccess {
 // Get Exam Schedule from API
 export const getExamSchedule = async (classname?: string): Promise<ExamSchedule | null> => {
   try {
-    const token = localStorage.getItem('token');
     const url = classname 
-      ? `${API_URL}/exams/schedule?classname=${encodeURIComponent(classname)}`
-      : `${API_URL}/exams/schedule`;
+      ? `/api/exams/schedule?classname=${encodeURIComponent(classname)}`
+      : `/api/exams/schedule`;
       
-    console.log('[getExamSchedule] Fetching from:', url);
-    
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    if (!response.ok) {
-      if (response.status === 404) return null;
-      throw new Error('Failed to fetch exam schedule');
-    }
-    
-    const data = await response.json();
-    console.log('[getExamSchedule] Received data:', data);
+    const { data } = await api.get(url);
     
     const schedule = Array.isArray(data) ? (data.length > 0 ? data[0] : null) : data;
-    console.log('[getExamSchedule] Final schedule:', schedule);
-    console.log('[getExamSchedule] Subjects count:', schedule?.subjects?.length || 0);
-    
     return schedule;
   } catch (error) {
     console.error("Error loading exam schedule:", error);
@@ -61,20 +43,7 @@ export const getExamSchedule = async (classname?: string): Promise<ExamSchedule 
 // Save Exam Schedule to API
 export const saveExamSchedule = async (schedule: ExamSchedule): Promise<boolean> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_URL}/exams/schedule`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(schedule)
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to save exam schedule');
-    }
-    
+    await api.post('/api/exams/schedule', schedule);
     return true;
   } catch (error) {
     console.error("Error saving exam schedule:", error);
@@ -85,16 +54,7 @@ export const saveExamSchedule = async (schedule: ExamSchedule): Promise<boolean>
 // Get Admit Card Access Status
 export const getAdmitCardAccess = async (studentId: string): Promise<boolean> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_URL}/exams/admit-card-access`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    if (!response.ok) return false;
-    
-    const accessList = await response.json();
+    const { data: accessList } = await api.get('/api/exams/admit-card-access');
     const access = accessList.find((a: AdmitCardAccess) => a.studentId === studentId);
     return access ? access.allowed : false;
   } catch (error) {
@@ -106,20 +66,7 @@ export const getAdmitCardAccess = async (studentId: string): Promise<boolean> =>
 // Set Admit Card Access for Student (API Version)
 export const setAdmitCardAccess = async (studentId: string, allowed: boolean): Promise<boolean> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_URL}/exams/access`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ studentId, allowed })
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to update admit card access');
-    }
-    
+    await api.post('/api/exams/access', { studentId, allowed });
     return true;
   } catch (error) {
     console.error("Error saving admit card access:", error);
@@ -130,20 +77,7 @@ export const setAdmitCardAccess = async (studentId: string, allowed: boolean): P
 // Allow All Students (API Version)
 export const allowAllStudents = async (studentIds: string[]): Promise<boolean> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_URL}/exams/access/all`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ studentIds })
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to allow all students');
-    }
-    
+    await api.post('/api/exams/access/all', { studentIds });
     return true;
   } catch (error) {
     console.error("Error allowing all students:", error);
@@ -154,18 +88,8 @@ export const allowAllStudents = async (studentIds: string[]): Promise<boolean> =
 // Get All Access Status from API
 export const getAllAdmitCardAccess = async (): Promise<AdmitCardAccess[]> => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_URL}/exams/access`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    if (!response.ok) {
-      return [];
-    }
-    
-    return await response.json();
+    const { data } = await api.get('/api/exams/access');
+    return data;
   } catch (error) {
     console.error("Error loading all admit card access:", error);
     return [];

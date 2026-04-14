@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import api, { API_BASE_URL } from "@/lib/api";
 import { Camera, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 
 // Import default images as fallback
@@ -8,7 +9,7 @@ import galleryStudents1 from "@/assets/gallery-students-1.jpeg";
 import galleryFieldTrip2 from "@/assets/gallery-field-trip-2.jpeg";
 import galleryStudents2 from "@/assets/gallery-students-2.jpeg";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = `${API_BASE_URL}/api`;
 
 const defaultImages = [
   { src: galleryFieldTrip1, title: "Educational Trip", category: "Activities", emoji: "🎒" },
@@ -51,8 +52,7 @@ const Gallery = () => {
   useEffect(() => {
     const fetchGalleryData = async () => {
       try {
-        const res = await fetch(`${API_URL}/landing/content`);
-        const data = await res.json();
+        const { data } = await api.get('/api/landing/content');
         
         if (data.success && data.data) {
           // Set gallery content
@@ -67,7 +67,7 @@ const Gallery = () => {
           // Set gallery images from API
           if (data.data.content?.gallery?.images && data.data.content.gallery.images.length > 0) {
             const apiImages = data.data.content.gallery.images.map((img: any) => ({
-              src: img.src.startsWith('http') ? img.src : `http://localhost:5000${img.src}`,
+              src: img.src.startsWith('http') ? img.src : `${API_BASE_URL}${img.src}`,
               title: img.title,
               category: img.category,
               emoji: img.emoji

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import axios from "axios";
+import api, { API_BASE_URL } from "@/lib/api";
 import { useDispatch, useSelector } from "react-redux";
 import { registerStudent, resetStudentState } from "@/store/slices/studentSlice";
 import { AppDispatch, RootState } from "@/store";
@@ -70,10 +70,8 @@ const StudentRegisterPage = () => {
   const [showPdfDownload, setShowPdfDownload] = useState(false);
   const [registeredStudent, setRegisteredStudent] = useState<any>(null);
 
-  // Configuration for API and Server URL
-  // VITE_API_URL should be "http://localhost:5000/api" in your .env
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-  const SERVER_URL = "http://localhost:5000"; // Used to access static files
+  const API_URL = `${API_BASE_URL}/api`;
+  const SERVER_URL = API_BASE_URL; // Used to access static files
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -110,7 +108,7 @@ const StudentRegisterPage = () => {
     try {
       const userCred = localStorage.getItem('userCred');
       const token = userCred ? JSON.parse(userCred).token : null;
-      const { data } = await axios.get(`${API_URL}/students/next-admission-no`, {
+      const { data } = await api.get(`/api/students/next-admission-no`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       form.setValue('admission_no', data.admission_no);
@@ -185,8 +183,8 @@ const StudentRegisterPage = () => {
       
       // POST to your local backend
       // We explicitly set Content-Type, though axios often handles this automatically with FormData
-      const { data } = await axios.post(
-        `${API_URL}/upload`, 
+      const { data } = await api.post(
+        `/api/upload`, 
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

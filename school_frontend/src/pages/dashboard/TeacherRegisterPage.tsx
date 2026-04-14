@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import axios from "axios";
+import api, { API_BASE_URL } from "@/lib/api";
 import { useDispatch, useSelector } from "react-redux";
 import { registerTeacher, resetTeacherState } from "@/store/slices/teacherSlice";
 import { AppDispatch, RootState } from "@/store";
@@ -46,9 +46,8 @@ const TeacherRegisterPage = () => {
   const [customSubject, setCustomSubject] = useState("");
   const [availableSubjects, setAvailableSubjects] = useState<string[]>([]);
 
-  // Configuration for API and Server URL
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-  const SERVER_URL = "http://localhost:5000"; // Used to access static files
+  const API_URL = `${API_BASE_URL}/api`;
+  const SERVER_URL = API_BASE_URL; // Used to access static files
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -128,9 +127,9 @@ const TeacherRegisterPage = () => {
     try {
       setUploading(true);
       
-      // POST to your local backend
-      const { data } = await axios.post(
-        `${API_URL}/upload`, 
+      // POST to your backend
+      const { data } = await api.post(
+        `/api/upload`, 
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
