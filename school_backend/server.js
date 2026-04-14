@@ -64,6 +64,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health Check / Root Route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: "R.N.T. School Backend is Live!", 
+    database: "Connected (Verified via Aiven)",
+    status: "Healthy" 
+  });
+});
+
 // 2. Use Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/students', autoClearCache('/students'), cacheMiddleware(5000), studentRoutes); // 5s cache

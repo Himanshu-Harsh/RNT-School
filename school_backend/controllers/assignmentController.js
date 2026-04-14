@@ -223,13 +223,21 @@ exports.getAllQuizzes = async (req, res) => {
     sql += ' ORDER BY created_at DESC';
 
     const [rows] = await db.execute(sql, params);
-    const quizzes = rows.map(q => ({
-      _id: q.id.toString(),
-      ...q,
-      questions: q.questions ? JSON.parse(q.questions) : [],
-      start_time: q.start_time ? new Date(q.start_time).toISOString() : null,
-      end_time: q.end_time ? new Date(q.end_time).toISOString() : null
-    }));
+    const quizzes = rows.map(q => {
+      let questions = [];
+      try {
+        questions = q.questions ? JSON.parse(q.questions) : [];
+      } catch (e) {
+        console.error(`Malformed JSON in quiz ${q.id}:`, q.questions);
+      }
+      return {
+        _id: q.id.toString(),
+        ...q,
+        questions: questions,
+        start_time: q.start_time ? new Date(q.start_time).toISOString() : null,
+        end_time: q.end_time ? new Date(q.end_time).toISOString() : null
+      };
+    });
     res.json(quizzes);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -267,7 +275,12 @@ exports.getQuizForStudent = async (req, res) => {
     }
 
     const quiz = rows[0];
-    let questions = quiz.questions ? JSON.parse(quiz.questions) : [];
+    let questions = [];
+    try {
+      questions = quiz.questions ? JSON.parse(quiz.questions) : [];
+    } catch (e) {
+      console.error(`Malformed JSON in quiz ${id}:`, quiz.questions);
+    }
     
     // Hide correct answers from student
     questions = questions.map(q => ({
@@ -363,7 +376,12 @@ exports.submitQuiz = async (req, res) => {
 
     // Get quiz to auto-grade MCQs
     const [quizRows] = await db.execute('SELECT questions FROM quizzes WHERE id = ?', [quiz_id]);
-    const questions = quizRows[0]?.questions ? JSON.parse(quizRows[0].questions) : [];
+    let questions = [];
+    try {
+      questions = quizRows[0]?.questions ? JSON.parse(quizRows[0].questions) : [];
+    } catch (e) {
+      console.error(`Malformed JSON in quiz ${quiz_id} during grading:`, quizRows[0]?.questions);
+    }
 
     let autoMarks = 0;
     const answersArray = answers || [];
@@ -405,12 +423,20 @@ exports.getQuizSubmissions = async (req, res) => {
       'SELECT * FROM quiz_submissions WHERE quiz_id = ? ORDER BY submitted_at DESC',
       [quizId]
     );
-    const submissions = rows.map(s => ({
-      _id: s.id.toString(),
-      ...s,
-      answers: s.answers ? JSON.parse(s.answers) : [],
-      submitted_at: s.submitted_at ? new Date(s.submitted_at).toISOString() : null
-    }));
+    const submissions = rows.map(s => {
+      let answers = [];
+      try {
+        answers = s.answers ? JSON.parse(s.answers) : [];
+      } catch (e) {
+        console.error(`Malformed JSON in submission ${s.id}:`, s.answers);
+      }
+      return {
+        _id: s.id.toString(),
+        ...s,
+        answers: answers,
+        submitted_at: s.submitted_at ? new Date(s.submitted_at).toISOString() : null
+      };
+    });
     res.json(submissions);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -429,10 +455,16 @@ exports.getStudentQuizSubmission = async (req, res) => {
       return res.json(null);
     }
     const s = rows[0];
+    let answers = [];
+    try {
+      answers = s.answers ? JSON.parse(s.answers) : [];
+    } catch (e) {
+      console.error(`Malformed JSON in student submission ${s.id}:`, s.answers);
+    }
     res.json({ 
       _id: s.id.toString(), 
       ...s,
-      answers: s.answers ? JSON.parse(s.answers) : []
+      answers: answers
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

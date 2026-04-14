@@ -15,22 +15,28 @@ const getLandingContent = async (req, res) => {
     
     const [content] = await db.query(query, params);
     
-    // Parse JSON content
-    const parsed = content.map(item => ({
-      section: item.section,
-      content: JSON.parse(item.content)
-    }));
-    
-    // If single section requested, return just that content
-    if (section && parsed.length > 0) {
-      return res.json(parsed[0].content);
-    }
-    
-    // Otherwise return all sections as object
+    // Parse JSON content safely and map to a structured object
     const result = {};
-    parsed.forEach(item => {
-      result[item.section] = item.content;
+    content.forEach(item => {
+      if (!result[item.section]) result[item.section] = {};
+      
+      let val = item.field_value;
+      try {
+        // Only try to parse if it's potentially a JSON string
+        if (typeof val === 'string' && (val.startsWith('{') || val.startsWith('['))) {
+          val = JSON.parse(val);
+        }
+      } catch (e) {
+        // Keep as string if parsing fails
+      }
+      
+      result[item.section][item.field_key] = val;
     });
+    
+    // If a specific section is requested, return just that
+    if (section && result[section]) {
+      return res.json(result[section]);
+    }
     
     res.json(result);
   } catch (error) {
@@ -49,10 +55,10 @@ const updateLandingContent = async (req, res) => {
     }
     
     const [result] = await db.query(
-      `INSERT INTO landing_content (section, content) 
-       VALUES (?, ?) 
+      `INSERT INTO landing_content (section, field_key, field_value) 
+       VALUES (?, 'data', ?) 
        ON DUPLICATE KEY UPDATE 
-       content = VALUES(content)`,
+       field_value = VALUES(field_value)`,
       [section, JSON.stringify(content)]
     );
     
@@ -70,10 +76,10 @@ const bulkUpdateLandingContent = async (req, res) => {
     
     for (const [section, content] of Object.entries(contentData)) {
       await db.query(
-        `INSERT INTO landing_content (section, content) 
-         VALUES (?, ?) 
+        `INSERT INTO landing_content (section, field_key, field_value) 
+         VALUES (?, 'data', ?) 
          ON DUPLICATE KEY UPDATE 
-         content = VALUES(content)`,
+         field_value = VALUES(field_value)`,
         [section, JSON.stringify(content)]
       );
     }
