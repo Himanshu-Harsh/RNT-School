@@ -48,7 +48,14 @@ const limiter = rateLimit({
 app.use('/api/auth', limiter); // Apply stricter limit to auth routes
 
 // 1. Global CORS
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://rnt-school-lms.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:5174',
+  ],
+  credentials: true,
+}));
 app.use(express.json({ limit: '10mb' })); // Limit body size
 
 // Cache control for GET requests
