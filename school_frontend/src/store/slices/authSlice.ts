@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '@/lib/api';
 
-// Ensure this matches your backend server port
-const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
 export interface User {
   _id: string;
@@ -41,17 +39,11 @@ export const login = createAsyncThunk(
   'auth/login',
   async ({ email, password }: any, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API_URL}/login`, { email, password });
+      const { data } = await api.post('/auth/login', { email, password });
       
       // 1. Save to LocalStorage
       localStorage.setItem('userCred', JSON.stringify(data));
 
-      // 2. CRITICAL FIX: Attach token to Axios immediately
-      // This ensures subsequent requests (like fetching profile/fees) work without a refresh
-      if (data.token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      }
-      
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Login failed');
@@ -64,9 +56,8 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
-      // Clear storage and headers
+      // Clear storage
       localStorage.removeItem('userCred');
-      delete axios.defaults.headers.common['Authorization'];
       state.userInfo = null;
     },
   },

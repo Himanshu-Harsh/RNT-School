@@ -19,7 +19,7 @@ export const fetchStudentAdvance = createAsyncThunk(
   'studentAdvance/fetchByAdmissionNo',
   async (admissionNo: string, { rejectWithValue }) => {
     try {
-      const { data } = await api.get(`/api/fees/advance/${admissionNo}`);
+      const { data } = await api.get(`/fees/advance/${admissionNo}`);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch advance balance');
@@ -32,7 +32,7 @@ export const fetchAllStudentAdvances = createAsyncThunk(
   'studentAdvance/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await api.get('/api/fees/advance/all');
+      const { data } = await api.get('/fees/advance/all');
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch all advances');

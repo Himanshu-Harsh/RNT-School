@@ -1,6 +1,6 @@
 import api, { API_BASE_URL } from "./api";
 
-const API_URL = `${API_BASE_URL}/api`;
+
 
 export interface ExamSubject {
   subject: string;
@@ -27,8 +27,8 @@ export interface AdmitCardAccess {
 export const getExamSchedule = async (classname?: string): Promise<ExamSchedule | null> => {
   try {
     const url = classname 
-      ? `/api/exams/schedule?classname=${encodeURIComponent(classname)}`
-      : `/api/exams/schedule`;
+      ? `/exams/schedule?classname=${encodeURIComponent(classname)}`
+      : `/exams/schedule`;
       
     const { data } = await api.get(url);
     
@@ -43,7 +43,7 @@ export const getExamSchedule = async (classname?: string): Promise<ExamSchedule 
 // Save Exam Schedule to API
 export const saveExamSchedule = async (schedule: ExamSchedule): Promise<boolean> => {
   try {
-    await api.post('/api/exams/schedule', schedule);
+    await api.post('/exams/schedule', schedule);
     return true;
   } catch (error) {
     console.error("Error saving exam schedule:", error);
@@ -54,7 +54,7 @@ export const saveExamSchedule = async (schedule: ExamSchedule): Promise<boolean>
 // Get Admit Card Access Status
 export const getAdmitCardAccess = async (studentId: string): Promise<boolean> => {
   try {
-    const { data: accessList } = await api.get('/api/exams/admit-card-access');
+    const { data: accessList } = await api.get('/exams/admit-card-access');
     const access = accessList.find((a: AdmitCardAccess) => a.studentId === studentId);
     return access ? access.allowed : false;
   } catch (error) {
@@ -66,7 +66,7 @@ export const getAdmitCardAccess = async (studentId: string): Promise<boolean> =>
 // Set Admit Card Access for Student (API Version)
 export const setAdmitCardAccess = async (studentId: string, allowed: boolean): Promise<boolean> => {
   try {
-    await api.post('/api/exams/access', { studentId, allowed });
+    await api.post('/exams/access', { studentId, allowed });
     return true;
   } catch (error) {
     console.error("Error saving admit card access:", error);
@@ -77,7 +77,7 @@ export const setAdmitCardAccess = async (studentId: string, allowed: boolean): P
 // Allow All Students (API Version)
 export const allowAllStudents = async (studentIds: string[]): Promise<boolean> => {
   try {
-    await api.post('/api/exams/access/all', { studentIds });
+    await api.post('/exams/access/all', { studentIds });
     return true;
   } catch (error) {
     console.error("Error allowing all students:", error);
@@ -88,7 +88,7 @@ export const allowAllStudents = async (studentIds: string[]): Promise<boolean> =
 // Get All Access Status from API
 export const getAllAdmitCardAccess = async (): Promise<AdmitCardAccess[]> => {
   try {
-    const { data } = await api.get('/api/exams/access');
+    const { data } = await api.get('/exams/access');
     return data;
   } catch (error) {
     console.error("Error loading all admit card access:", error);

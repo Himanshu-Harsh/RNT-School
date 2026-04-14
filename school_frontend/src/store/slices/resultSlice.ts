@@ -1,8 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/lib/api";
 import { RootState } from "..";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/results`;
 
 export interface ExamResult {
   _id?: string;
@@ -36,16 +35,9 @@ const initialState: ResultState = {
 // Fetch Results (accepts filters object)
 export const fetchResults = createAsyncThunk(
   "results/fetch",
-  async (filters: { studentId?: string; classname?: string; examName?: string; admissionNo?: string } = {}, { rejectWithValue, getState }) => {
+  async (filters: { studentId?: string; classname?: string; examName?: string; admissionNo?: string } = {}, { rejectWithValue }) => {
     try {
-      const state = getState() as RootState;
-      const token = state.auth.userInfo?.token;
-      
-      // Build query string
-      const params = new URLSearchParams(filters as any).toString();
-      const { data } = await axios.get(`${API_URL}?${params}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await api.get('/results', { params: filters });
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch results");
@@ -55,14 +47,9 @@ export const fetchResults = createAsyncThunk(
 
 export const addResult = createAsyncThunk(
   "results/add",
-  async (result: ExamResult, { rejectWithValue, getState }) => {
+  async (result: ExamResult, { rejectWithValue }) => {
     try {
-      const state = getState() as RootState;
-      const token = state.auth.userInfo?.token;
-      
-      const { data } = await axios.post(API_URL, result, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await api.post('/results', result);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to add result");
@@ -72,14 +59,9 @@ export const addResult = createAsyncThunk(
 
 export const bulkAddResults = createAsyncThunk(
   "results/bulkAdd",
-  async (results: ExamResult[], { rejectWithValue, getState }) => {
+  async (results: ExamResult[], { rejectWithValue }) => {
     try {
-      const state = getState() as RootState;
-      const token = state.auth.userInfo?.token;
-      
-      const { data } = await axios.post(`${API_URL}/bulk`, { results }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await api.post('/results/bulk', { results });
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to save results");
@@ -89,14 +71,9 @@ export const bulkAddResults = createAsyncThunk(
 
 export const deleteResult = createAsyncThunk(
   "results/delete",
-  async (id: string, { rejectWithValue, getState }) => {
+  async (id: string, { rejectWithValue }) => {
     try {
-      const state = getState() as RootState;
-      const token = state.auth.userInfo?.token;
-      
-      await axios.delete(`${API_URL}/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.delete(`/results/${id}`);
       return id;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to delete result");

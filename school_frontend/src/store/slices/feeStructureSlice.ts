@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/lib/api";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/fee-structure`;
 
 export interface FeeStructure {
   classname: string;
@@ -33,7 +32,7 @@ export const fetchFeeStructure = createAsyncThunk(
   "feeStructure/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(API_URL);
+      const { data } = await api.get('/fee-structure');
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch structure");
@@ -45,7 +44,7 @@ export const saveFeeStructureDB = createAsyncThunk(
   "feeStructure/save",
   async (structure: FeeStructure[], { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(API_URL, structure);
+      const { data } = await api.post('/fee-structure', structure);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to save structure");

@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/lib/api";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/attendance`;
+
 
 export interface AttendanceRecord {
   _id: string;
@@ -36,7 +36,7 @@ export const markAttendance = createAsyncThunk(
   "attendance/mark",
   async (record: Omit<AttendanceRecord, "_id">, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(API_URL, record);
+      const { data } = await api.post('/attendance', record);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to save attendance");
@@ -48,7 +48,7 @@ export const getAttendanceHistory = createAsyncThunk(
   "attendance/history",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(API_URL);
+      const { data } = await api.get('/attendance');
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch history");

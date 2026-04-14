@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/lib/api";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/exams`;
 
 // Types
 export interface ExamSubject {
@@ -49,8 +48,9 @@ export const fetchExamSchedule = createAsyncThunk(
   "exam/fetchSchedule",
   async (classname: string | undefined, { rejectWithValue }) => {
     try {
-      const url = classname ? `${API_URL}/schedule?classname=${classname}` : `${API_URL}/schedule`;
-      const { data } = await axios.get(url);
+      const { data } = await api.get('/exams/schedule', { 
+        params: classname ? { classname } : {} 
+      });
       return data; // Returns object (if classname provided) or array
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch schedule");
@@ -63,7 +63,7 @@ export const saveExamSchedule = createAsyncThunk(
   "exam/saveSchedule",
   async (schedule: ExamSchedule, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API_URL}/schedule`, schedule);
+      const { data } = await api.post('/exams/schedule', schedule);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to save schedule");
@@ -76,7 +76,7 @@ export const fetchAdmitCardAccess = createAsyncThunk(
   "exam/fetchAccess",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API_URL}/access`);
+      const { data } = await api.get('/exams/access');
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch access list");
@@ -89,7 +89,7 @@ export const setStudentAccess = createAsyncThunk(
   "exam/setAccess",
   async ({ studentId, allowed }: { studentId: string; allowed: boolean }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API_URL}/access`, { studentId, allowed });
+      const { data } = await api.post('/exams/access', { studentId, allowed });
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to update access");
@@ -102,7 +102,7 @@ export const allowAllStudents = createAsyncThunk(
   "exam/allowAll",
   async (studentIds: string[], { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API_URL}/access/all`, { studentIds });
+      const { data } = await api.post('/exams/access/all', { studentIds });
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to update all");

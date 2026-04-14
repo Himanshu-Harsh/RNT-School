@@ -46,7 +46,6 @@ const TeacherRegisterPage = () => {
   const [customSubject, setCustomSubject] = useState("");
   const [availableSubjects, setAvailableSubjects] = useState<string[]>([]);
 
-  const API_URL = `${API_BASE_URL}/api`;
   const SERVER_URL = API_BASE_URL; // Used to access static files
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -129,7 +128,7 @@ const TeacherRegisterPage = () => {
       
       // POST to your backend
       const { data } = await api.post(
-        `/api/upload`, 
+        `/upload`, 
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

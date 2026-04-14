@@ -9,7 +9,6 @@ import galleryStudents1 from "@/assets/gallery-students-1.jpeg";
 import galleryFieldTrip2 from "@/assets/gallery-field-trip-2.jpeg";
 import galleryStudents2 from "@/assets/gallery-students-2.jpeg";
 
-const API_URL = `${API_BASE_URL}/api`;
 
 const defaultImages = [
   { src: galleryFieldTrip1, title: "Educational Trip", category: "Activities", emoji: "🎒" },
@@ -52,7 +51,7 @@ const Gallery = () => {
   useEffect(() => {
     const fetchGalleryData = async () => {
       try {
-        const { data } = await api.get('/api/landing/content');
+        const { data } = await api.get('/landing/content');
         
         if (data.success && data.data) {
           // Set gallery content

@@ -40,7 +40,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-const API_URL = `${API_BASE_URL}/api`;
+// API paths are now relative to /api via the centralized api instance
 
 interface GalleryImage {
   id: number;
@@ -137,7 +137,7 @@ const LandingPageManagement = () => {
 
   const fetchLandingContent = async () => {
     try {
-      const { data } = await api.get('/api/landing/content');
+      const { data } = await api.get('/landing/content');
       
       if (data.success) {
         const { content } = data.data;
@@ -193,7 +193,7 @@ const LandingPageManagement = () => {
 
   const fetchGalleryImages = async () => {
     try {
-      const { data } = await api.get('/api/landing/gallery');
+      const { data } = await api.get('/landing/gallery');
       if (data.success) {
         setGalleryImages(data.data);
       }
@@ -204,7 +204,7 @@ const LandingPageManagement = () => {
 
   const fetchNotices = async () => {
     try {
-      const { data } = await api.get('/api/landing/notices');
+      const { data } = await api.get('/landing/notices');
       if (data.success) {
         setNotices(data.data);
       }
@@ -222,7 +222,7 @@ const LandingPageManagement = () => {
         field_value,
       }));
 
-      const { data } = await api.put('/api/landing/content/bulk', { updates });
+      const { data } = await api.put('/landing/content/bulk', { updates });
       if (data.success) {
         toast.success(`${section.charAt(0).toUpperCase() + section.slice(1)} content saved!`);
       } else {
@@ -249,7 +249,7 @@ const LandingPageManagement = () => {
       formData.append("category", newImage.category);
       formData.append("emoji", newImage.emoji);
 
-      const { data } = await api.post('/api/landing/gallery', formData, {
+      const { data } = await api.post('/landing/gallery', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       if (data.success) {
@@ -271,7 +271,7 @@ const LandingPageManagement = () => {
     if (!confirm("Are you sure you want to delete this image?")) return;
 
     try {
-      const { data } = await api.delete(`/api/landing/gallery/${id}`);
+      const { data } = await api.delete(`/landing/gallery/${id}`);
       if (data.success) {
         toast.success("Image deleted!");
         fetchGalleryImages();
@@ -283,7 +283,7 @@ const LandingPageManagement = () => {
 
   const toggleImageActive = async (image: GalleryImage) => {
     try {
-      const { data } = await api.put(`/api/landing/gallery/${image.id}`, { 
+      const { data } = await api.put(`/landing/gallery/${image.id}`, { 
         ...image, 
         is_active: !image.is_active 
       });
@@ -309,8 +309,8 @@ const LandingPageManagement = () => {
         : newNotice;
 
       const { data } = await (editingNotice
-        ? api.put(`/api/landing/notices/${editingNotice.id}`, body)
-        : api.post('/api/landing/notices', body));
+        ? api.put(`/landing/notices/${editingNotice.id}`, body)
+        : api.post('/landing/notices', body));
       if (data.success) {
         toast.success(editingNotice ? "Notice updated!" : "Notice created!");
         setNoticeDialogOpen(false);
@@ -336,7 +336,7 @@ const LandingPageManagement = () => {
     if (!confirm("Are you sure you want to delete this notice?")) return;
 
     try {
-      const { data } = await api.delete(`/api/landing/notices/${id}`);
+      const { data } = await api.delete(`/landing/notices/${id}`);
       if (data.success) {
         toast.success("Notice deleted!");
         fetchNotices();

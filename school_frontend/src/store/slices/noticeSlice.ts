@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/lib/api";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/notices`;
 
 export interface Notice {
   id: string;
@@ -31,7 +30,7 @@ export const fetchNotices = createAsyncThunk(
   "notice/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(API_URL);
+      const { data } = await api.get('/notices');
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch notices");
@@ -43,9 +42,7 @@ export const addNotice = createAsyncThunk(
   "notice/add",
   async (notice: Omit<Notice, "id" | "date">, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data } = await axios.post(API_URL, notice, config);
+      const { data } = await api.post('/notices', notice);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to add notice");
@@ -57,9 +54,7 @@ export const deleteNotice = createAsyncThunk(
   "notice/delete",
   async (id: string, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.delete(`${API_URL}/${id}`, config);
+      await api.delete(`/notices/${id}`);
       return id;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to delete notice");

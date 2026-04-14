@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/lib/api";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/dashboard`;
+
 
 interface DashboardState {
   stats: {
@@ -24,17 +24,17 @@ const initialState: DashboardState = {
 
 // Actions
 export const fetchStats = createAsyncThunk("dashboard/stats", async () => {
-  const { data } = await axios.get(`${API_URL}/stats`);
+  const { data } = await api.get('/dashboard/stats');
   return data;
 });
 
 export const fetchLandingContent = createAsyncThunk("dashboard/landing/get", async () => {
-  const { data } = await axios.get(`${API_URL}/landing`);
+  const { data } = await api.get('/dashboard/landing');
   return data;
 });
 
 export const updateLandingContent = createAsyncThunk("dashboard/landing/update", async (content: any) => {
-  const { data } = await axios.post(`${API_URL}/landing`, content);
+  const { data } = await api.post('/dashboard/landing', content);
   return data;
 });
 

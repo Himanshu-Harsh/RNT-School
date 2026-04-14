@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import api, { API_BASE_URL } from "@/lib/api";
+import api from "@/lib/api";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { listTeachers } from "@/store/slices/teacherSlice";
@@ -43,7 +43,7 @@ const PayrollPage = () => {
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
-        const { data } = await api.get('/api/expenses');
+        const { data } = await api.get('/expenses');
         // Convert amount to number
         const formattedData = data.map((exp: any) => ({
           ...exp,
@@ -328,7 +328,7 @@ const PayrollPage = () => {
 
     // Send to backend
     try {
-      const { data: newExpense } = await api.post('/api/expenses', {
+      const { data: newExpense } = await api.post('/expenses', {
         title: expenseDescription,
         amount: Number(expenseAmount),
         category: expenseCategory,

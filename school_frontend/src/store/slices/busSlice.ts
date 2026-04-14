@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/lib/api";
 
-const API_BASE = `${import.meta.env.VITE_API_URL}/bus`;
+
 
 // ============================================
 // INTERFACES
@@ -70,21 +70,10 @@ export const fetchBusRoutes = createAsyncThunk(
   "bus/fetchRoutes",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("Fetching bus routes from:", `${API_BASE}/routes`);
-      const response = await axios.get(`${API_BASE}/routes`);
-      console.log("Bus routes fetched successfully:", response.data);
+      const response = await api.get('/bus/routes');
       return response.data;
     } catch (error: any) {
-      console.error("Error fetching bus routes:", {
-        status: error.response?.status,
-        message: error.response?.data?.message,
-        fullError: error.message
-      });
-      return rejectWithValue(
-        error.response?.data?.message || 
-        error.message ||
-        "Failed to fetch bus routes"
-      );
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch bus routes");
     }
   }
 );
@@ -93,7 +82,7 @@ export const createBusRoute = createAsyncThunk(
   "bus/createRoute",
   async (routeData: Omit<BusRoute, "_id">, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API_BASE}/routes`, routeData);
+      const { data } = await api.post('/bus/routes', routeData);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to create bus route");
@@ -105,7 +94,7 @@ export const updateBusRoute = createAsyncThunk(
   "bus/updateRoute",
   async ({ id, ...routeData }: BusRoute, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put(`${API_BASE}/routes/${id}`, routeData);
+      const { data } = await api.put(`/bus/routes/${id}`, routeData);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to update bus route");
@@ -117,7 +106,7 @@ export const deleteBusRoute = createAsyncThunk(
   "bus/deleteRoute",
   async (id: number | string, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_BASE}/routes/${id}`);
+      await api.delete(`/bus/routes/${id}`);
       return id;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to delete bus route");
@@ -133,7 +122,7 @@ export const fetchBusFeeConfig = createAsyncThunk(
   "bus/fetchConfig",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API_BASE}/config`);
+      const { data } = await api.get('/bus/config');
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch bus fee config");
@@ -145,7 +134,7 @@ export const updateBusFeeConfig = createAsyncThunk(
   "bus/updateConfig",
   async (configData: Omit<BusFeeConfig, "_id">, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put(`${API_BASE}/config`, configData);
+      const { data } = await api.put('/bus/config', configData);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to update bus fee config");
@@ -161,7 +150,7 @@ export const fetchAllBusAssignments = createAsyncThunk(
   "bus/fetchAssignments",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API_BASE}/assignments`);
+      const { data } = await api.get('/bus/assignments');
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch bus assignments");
@@ -176,10 +165,9 @@ export const fetchStudentBusAssignment = createAsyncThunk(
       if (!studentId) {
         return null;
       }
-      const response = await axios.get(`${API_BASE}/assignments/${studentId}`);
+      const response = await api.get(`/bus/assignments/${studentId}`);
       return response.data || null;
     } catch (error: any) {
-      console.error("Bus assignment fetch error:", error);
       return rejectWithValue(
         error.response?.data?.message || 
         error.message || 
@@ -198,7 +186,7 @@ export const assignBusToStudent = createAsyncThunk(
     start_date: string;
   }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API_BASE}/assignments`, assignmentData);
+      const { data } = await api.post('/bus/assignments', assignmentData);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to assign bus");
@@ -210,7 +198,7 @@ export const removeBusFromStudent = createAsyncThunk(
   "bus/removeFromStudent",
   async ({ studentId, end_date }: { studentId: number | string; end_date: string }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put(`${API_BASE}/assignments/${studentId}/remove`, { end_date });
+      const { data } = await api.put(`/bus/assignments/${studentId}/remove`, { end_date });
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to remove bus assignment");

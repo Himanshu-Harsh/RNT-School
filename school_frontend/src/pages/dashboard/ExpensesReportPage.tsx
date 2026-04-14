@@ -28,7 +28,7 @@ const ExpensesReportPage = () => {
     // Fetch school expenses
     const fetchExpenses = async () => {
       try {
-        const { data } = await api.get('/api/expenses');
+        const { data } = await api.get('/expenses');
         const formattedData = data.map((exp: any) => ({
           ...exp,
           amount: parseFloat(exp.amount),

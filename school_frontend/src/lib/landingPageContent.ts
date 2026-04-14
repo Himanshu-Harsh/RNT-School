@@ -1,6 +1,6 @@
 import api, { API_BASE_URL } from "./api";
 
-const API_URL = `${API_BASE_URL}/api/landing-content`;
+
 
 export interface LandingPageContent {
   home: {
@@ -130,7 +130,7 @@ const DEFAULT_CONTENT: LandingPageContent = {
 
 export const getLandingPageContent = async (): Promise<LandingPageContent> => {
   try {
-    const { data } = await api.get('/api/landing-content');
+    const { data } = await api.get('/landing-content');
     // If data is empty, return default content
     if (!data || Object.keys(data).length === 0) {
       return DEFAULT_CONTENT;
@@ -144,7 +144,7 @@ export const getLandingPageContent = async (): Promise<LandingPageContent> => {
 
 export const saveLandingPageContent = async (content: LandingPageContent): Promise<boolean> => {
   try {
-    await api.put('/api/landing-content/bulk', content);
+    await api.put('/landing-content/bulk', content);
     return true;
   } catch (error) {
     console.error("Error saving landing page content:", error);

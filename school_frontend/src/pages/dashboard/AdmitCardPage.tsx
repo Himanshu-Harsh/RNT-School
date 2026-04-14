@@ -79,7 +79,7 @@ const AdmitCardPage = () => {
         console.log("Loading photo via API:", selectedStudent.image);
         
         // Use backend API to get base64 image
-        const { data } = await api.get('/api/image/base64', {
+        const { data } = await api.get('/image/base64', {
           params: { path: selectedStudent.image }
         });
         

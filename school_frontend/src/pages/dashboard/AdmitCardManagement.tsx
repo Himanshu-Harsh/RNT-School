@@ -159,7 +159,7 @@ const AdmitCardManagement = () => {
         let studentPhotoData: string | null = null;
         if (student.image) {
           try {
-        const { data } = await api.get('/api/image/base64', {
+        const { data } = await api.get('/image/base64', {
           params: { path: student.image }
         });
 
@@ -374,7 +374,7 @@ const AdmitCardManagement = () => {
           try {
             console.log("Loading photo via API:", student.image);
             
-        const { data } = await api.get('/api/image/base64', {
+        const { data } = await api.get('/image/base64', {
           params: { path: student.image }
         });
 

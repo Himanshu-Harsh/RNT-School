@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/lib/api";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/salaries`;
 
 export interface SalaryRecord {
   _id?: string;
@@ -34,7 +33,7 @@ export const paySalary = createAsyncThunk(
   "salary/pay",
   async (record: SalaryRecord, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API_URL}/pay`, record);
+      const { data } = await api.post('/salaries/pay', record);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Payment failed");
@@ -46,7 +45,7 @@ export const getSalaryHistory = createAsyncThunk(
   "salary/history",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(API_URL);
+      const { data } = await api.get('/salaries');
       return data;
     } catch (error) {
       return rejectWithValue("Failed to fetch history");

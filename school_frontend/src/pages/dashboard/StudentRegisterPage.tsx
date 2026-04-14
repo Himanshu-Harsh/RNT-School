@@ -70,7 +70,6 @@ const StudentRegisterPage = () => {
   const [showPdfDownload, setShowPdfDownload] = useState(false);
   const [registeredStudent, setRegisteredStudent] = useState<any>(null);
 
-  const API_URL = `${API_BASE_URL}/api`;
   const SERVER_URL = API_BASE_URL; // Used to access static files
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -108,9 +107,7 @@ const StudentRegisterPage = () => {
     try {
       const userCred = localStorage.getItem('userCred');
       const token = userCred ? JSON.parse(userCred).token : null;
-      const { data } = await api.get(`/api/students/next-admission-no`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await api.get(`/students/next-admission-no`);
       form.setValue('admission_no', data.admission_no);
     } catch (err) {
       console.error('Failed to fetch next admission no:', err);
@@ -184,7 +181,7 @@ const StudentRegisterPage = () => {
       // POST to your local backend
       // We explicitly set Content-Type, though axios often handles this automatically with FormData
       const { data } = await api.post(
-        `/api/upload`, 
+        `/upload`, 
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

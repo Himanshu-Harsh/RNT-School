@@ -37,7 +37,6 @@ const StaffRegisterPage = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const API_URL = `${API_BASE_URL}/api`;
   const SERVER_URL = API_BASE_URL; 
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -84,7 +83,7 @@ const StaffRegisterPage = () => {
 
     try {
       setUploading(true);
-      const { data } = await api.post(`/api/upload`, formData, {
+      const { data } = await api.post(`/upload`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
       });
       setUploading(false);

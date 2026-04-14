@@ -166,7 +166,7 @@ const StudentResults = () => {
     let studentPhotoData: string | null = null;
     if (userInfo?.image) {
       try {
-        const { data } = await api.get('/api/image/base64', {
+        const { data } = await api.get('/image/base64', {
           params: { path: userInfo.image }
         });
         if (data.success && data.data) {

@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/lib/api";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/timetable`;
 
 export interface TimetableEntry {
   _id?: string;
@@ -34,7 +33,7 @@ export const createTimetableEntry = createAsyncThunk(
   "timetable/create",
   async (entry: TimetableEntry, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(API_URL, entry);
+      const { data } = await api.post('/timetable', entry);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to assign class");
@@ -46,7 +45,7 @@ export const getTimetable = createAsyncThunk(
   "timetable/list",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(API_URL);
+      const { data } = await api.get('/timetable');
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to load timetable");

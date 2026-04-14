@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/lib/api";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/fees`;
 
 export interface FeeRecord {
   _id?: string;
@@ -111,7 +110,7 @@ export const payFees = createAsyncThunk(
   "fees/pay",
   async (feeData: FeeRecord, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API_URL}/pay`, feeData);
+      const { data } = await api.post('/fees/pay', feeData);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to process payment");
@@ -131,16 +130,7 @@ export const getFeeHistory = createAsyncThunk(
     student_id?: string;
   } = {}, { rejectWithValue }) => {
     try {
-      const params = new URLSearchParams();
-      if (filters?.academic_year) params.append('academic_year', filters.academic_year);
-      if (filters?.classname) params.append('classname', filters.classname);
-      if (filters?.month) params.append('month', filters.month);
-      if (filters?.payment_mode) params.append('payment_mode', filters.payment_mode);
-      if (filters?.limit) params.append('limit', filters.limit.toString());
-      if (filters?.offset) params.append('offset', filters.offset.toString());
-      if (filters?.student_id) params.append('student_id', filters.student_id);
-      
-      const { data } = await axios.get(`${API_URL}${params.toString() ? '?' + params.toString() : ''}`);
+      const { data } = await api.get('/fees', { params: filters });
       
       // Handle both paginated and non-paginated responses
       if (data && typeof data === 'object' && 'data' in data && 'pagination' in data) {
@@ -159,7 +149,9 @@ export const getFeeAnalytics = createAsyncThunk(
   "fees/analytics",
   async (academicYear: string | undefined = undefined, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API_URL}/analytics${academicYear ? `?academic_year=${academicYear}` : ''}`);
+      const { data } = await api.get('/fees/analytics', { 
+        params: academicYear ? { academic_year: academicYear } : {} 
+      });
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to load analytics");
@@ -171,11 +163,7 @@ export const getDefaultersList = createAsyncThunk(
   "fees/defaulters",
   async (filters: { classname?: string; min_pending?: number } = {}, { rejectWithValue }) => {
     try {
-      const params = new URLSearchParams();
-      if (filters?.classname) params.append('classname', filters.classname);
-      if (filters?.min_pending) params.append('min_pending', filters.min_pending.toString());
-      
-      const { data } = await axios.get(`${API_URL}/defaulters${params.toString() ? '?' + params.toString() : ''}`);
+      const { data } = await api.get('/fees/defaulters', { params: filters });
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to load defaulters");
@@ -187,7 +175,7 @@ export const deleteFeeRecord = createAsyncThunk(
   "fees/delete",
   async (id: string, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await api.delete(`/fees/${id}`);
       return id;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to delete record");

@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from 'axios';
+import api from '@/lib/api';
 
-const API_URL = `${import.meta.env.VITE_API_URL}/students`;
 
 export interface Student {
   _id?: string;
@@ -56,7 +55,7 @@ export const registerStudent = createAsyncThunk(
   "student/register",
   async (studentData: Student, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(API_URL, studentData);
+      const { data } = await api.post('/students', studentData);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to register student");
@@ -69,7 +68,7 @@ export const updateStudent = createAsyncThunk(
   "student/update",
   async (studentData: Student, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put(`${API_URL}/${studentData._id}`, studentData);
+      const { data } = await api.put(`/students/${studentData._id}`, studentData);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to update student");
@@ -82,7 +81,7 @@ export const deleteStudent = createAsyncThunk(
   "student/delete",
   async (id: string, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await api.delete(`/students/${id}`);
       return id;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to delete student");
@@ -95,7 +94,7 @@ export const listStudents = createAsyncThunk(
   "student/list",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(API_URL);
+      const { data } = await api.get('/students');
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch students");

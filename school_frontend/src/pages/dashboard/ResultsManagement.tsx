@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import api, { API_BASE_URL } from "@/lib/api";
+import api from "@/lib/api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -106,7 +106,7 @@ const ResultsManagement = () => {
   useEffect(() => {
     const fetchGradingConfig = async () => {
       try {
-        const { data } = await api.get('/api/settings/grading_config');
+        const { data } = await api.get('/settings/grading_config');
         
         if (data) {
           console.log('Raw database response:', data);
@@ -456,7 +456,7 @@ const ResultsManagement = () => {
     }
 
     try {
-      const { data } = await api.post('/api/subjects', {
+      const { data } = await api.post('/subjects', {
         class: subjectClass,
         subject_name: newSubjectName,
         subject_code: newSubjectCode
@@ -467,20 +467,17 @@ const ResultsManagement = () => {
         setNewSubjectName("");
         setNewSubjectCode("");
         loadSubjectsForManagement(subjectClass);
-      } else {
-        const errorData = await response.json();
-        console.error("Add subject error:", errorData);
-        toast.error(errorData.message || "Failed to add subject");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding subject:", error);
-      toast.error("Error adding subject");
+      const message = error.response?.data?.message || "Error adding subject";
+      toast.error(message);
     }
   };
 
   const deleteSubject = async (subjectId: number) => {
     try {
-      const { data } = await api.delete(`/api/subjects/${subjectId}`);
+      const { data } = await api.delete(`/subjects/${subjectId}`);
 
       if (data) {
         toast.success("Subject deleted successfully");
@@ -547,7 +544,7 @@ const ResultsManagement = () => {
     let studentPhotoData: string | null = null;
     if (entry.image) {
       try {
-        const { data } = await api.get('/api/image/base64', {
+        const { data } = await api.get('/image/base64', {
           params: { path: entry.image }
         });
         if (data.success && data.data) {
@@ -868,7 +865,7 @@ const ResultsManagement = () => {
       let studentPhotoData: string | null = null;
       if (entry.image) {
         try {
-          const { data } = await api.get('/api/image/base64', {
+          const { data } = await api.get('/image/base64', {
             params: { path: entry.image }
           });
           if (data.success && data.data) {
@@ -1453,7 +1450,7 @@ const ResultsManagement = () => {
                           console.log('Saving grading config to database:', gradingConfig);
                           
                           // Save config to database
-                          const { data: result } = await api.post('/api/settings', {
+                          const { data: result } = await api.post('/settings', {
                             setting_key: 'grading_config',
                             setting_value: gradingConfig,
                             setting_type: 'json',

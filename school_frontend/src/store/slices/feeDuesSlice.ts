@@ -1,13 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = `${import.meta.env.VITE_API_URL}/fees`;
+import api from "@/lib/api";
 
 export const fetchAllFeeDues = createAsyncThunk(
   "feeDues/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${API_URL}/fee-dues/all`);
+      const res = await api.get('/fees/fee-dues/all');
       return res.data; // Returns object map: { admission_no: due_amount }
     } catch (err: any) {
       return rejectWithValue(
@@ -21,7 +19,7 @@ export const fetchFeeDueByAdmissionNo = createAsyncThunk(
   "feeDues/fetchByAdmissionNo",
   async (admissionNo: string, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${API_URL}/fee-dues/${admissionNo}`);
+      const res = await api.get(`/fees/fee-dues/${admissionNo}`);
       return res.data; // { admission_no, due_amount }
     } catch (err: any) {
       return rejectWithValue(

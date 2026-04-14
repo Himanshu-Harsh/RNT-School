@@ -420,9 +420,8 @@ const MyFees = () => {
     try {
       // 1. Create Order
       const { data: orderData } = await api.post(
-        "/api/payment/create-order",
-        { amount: balance, receipt: `receipt_${userInfo?.admission_no}_${Date.now()}` },
-        { headers: { Authorization: `Bearer ${userInfo?.token}` } }
+        "/payment/create-order",
+        { amount: balance, receipt: `receipt_${userInfo?.admission_no}_${Date.now()}` }
       );
 
       // 2. Open Razorpay Modal
@@ -438,9 +437,8 @@ const MyFees = () => {
           try {
             // 3. Verify Payment
             const verifyRes = await api.post(
-              "/api/payment/verify",
-              response,
-              { headers: { Authorization: `Bearer ${userInfo?.token}` } }
+              "/payment/verify",
+              response
             );
 
             if (verifyRes.data.success) {
@@ -473,9 +471,7 @@ const MyFees = () => {
                 totalAmount: balance,
               };
               
-              await api.post("/api/fees/pay", paymentPayload, {
-                 headers: { Authorization: `Bearer ${userInfo?.token}` } 
-              });
+              await api.post("/fees/pay", paymentPayload);
               
               toast.success("Payment Successful!");
               handleRefresh();

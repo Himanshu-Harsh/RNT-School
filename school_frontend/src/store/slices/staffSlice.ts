@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "@/lib/api";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/staff`;
 
 export interface Staff {
   _id?: string;
@@ -42,7 +41,7 @@ export const listStaff = createAsyncThunk(
   "staff/list",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(API_URL);
+      const { data } = await api.get('/staff');
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch staff list");
@@ -54,7 +53,7 @@ export const registerStaff = createAsyncThunk(
   "staff/register",
   async (staffData: Staff, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(API_URL, staffData);
+      const { data } = await api.post('/staff', staffData);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to register staff");
@@ -66,7 +65,7 @@ export const updateStaff = createAsyncThunk(
   "staff/update",
   async (staffData: Staff, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put(`${API_URL}/${staffData._id}`, staffData);
+      const { data } = await api.put(`/staff/${staffData._id}`, staffData);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to update staff");
@@ -78,7 +77,7 @@ export const deleteStaff = createAsyncThunk(
   "staff/delete",
   async (id: string, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await api.delete(`/staff/${id}`);
       return id;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to delete staff");

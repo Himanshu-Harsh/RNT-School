@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const API_URL = `${API_BASE_URL}/api`;
+// API paths are now relative to /api via the centralized api instance
 
 interface GalleryImage {
   id: number;
@@ -174,7 +174,7 @@ const LandingPageEdit = () => {
     try {
       setLoading(true);
       
-      const { data: contentData } = await api.get('/api/landing/content');
+      const { data: contentData } = await api.get('/landing/content');
       if (contentData.success) {
         setContent(contentData.data.content || defaultContent);
         const aboutFeatures = contentData.data.content?.about?.features;
@@ -187,12 +187,12 @@ const LandingPageEdit = () => {
         }
       }
 
-      const { data: galleryData } = await api.get('/api/landing/gallery');
+      const { data: galleryData } = await api.get('/landing/gallery');
       if (galleryData.success) {
         setGalleryImages(galleryData.data || []);
       }
 
-      const { data: noticesData } = await api.get('/api/landing/notices');
+      const { data: noticesData } = await api.get('/landing/notices');
       if (noticesData.success) {
         setNotices(noticesData.data || []);
       }
@@ -268,7 +268,7 @@ const LandingPageEdit = () => {
         }
       });
 
-      const { data } = await api.put('/api/landing/content/bulk', { updates });
+      const { data } = await api.put('/landing/content/bulk', { updates });
       if (data.success) {
         toast.success("Landing page content saved successfully! 🎉");
       } else {
@@ -338,12 +338,12 @@ const LandingPageEdit = () => {
         formData.append('category', newImage.category);
         formData.append('emoji', newImage.emoji);
 
-        const { data } = await api.post('/api/landing/gallery', formData, {
+        const { data } = await api.post('/landing/gallery', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         finalData = data;
       } else {
-        const { data } = await api.post('/api/landing/gallery/external', {
+        const { data } = await api.post('/landing/gallery/external', {
           title: newImage.title || 'Gallery Image',
           category: newImage.category,
           emoji: newImage.emoji,
@@ -372,7 +372,7 @@ const LandingPageEdit = () => {
     if (!confirm("Are you sure you want to delete this image?")) return;
 
     try {
-      const { data } = await api.delete(`/api/landing/gallery/${id}`);
+      const { data } = await api.delete(`/landing/gallery/${id}`);
       if (data.success) {
         setGalleryImages(galleryImages.filter(img => img.id !== id));
         toast.success("Image deleted successfully");
@@ -386,7 +386,7 @@ const LandingPageEdit = () => {
 
   const toggleImageActive = async (image: GalleryImage) => {
     try {
-      const { data } = await api.put(`/api/landing/gallery/${image.id}`, { 
+      const { data } = await api.put(`/landing/gallery/${image.id}`, { 
         ...image, 
         is_active: !image.is_active 
       });
@@ -410,7 +410,7 @@ const LandingPageEdit = () => {
 
     try {
       if (editingNotice) {
-        const { data } = await api.put(`/api/landing/notices/${editingNotice.id}`, { 
+        const { data } = await api.put(`/landing/notices/${editingNotice.id}`, { 
           ...newNotice, 
           is_active: editingNotice.is_active 
         });
@@ -420,7 +420,7 @@ const LandingPageEdit = () => {
           fetchAllData();
         }
       } else {
-        const { data } = await api.post('/api/landing/notices', newNotice);
+        const { data } = await api.post('/landing/notices', newNotice);
 
         if (data.success) {
           toast.success("Notice created successfully!");
@@ -440,7 +440,7 @@ const LandingPageEdit = () => {
     if (!confirm("Are you sure you want to delete this notice?")) return;
 
     try {
-      const { data } = await api.delete(`/api/landing/notices/${id}`);
+      const { data } = await api.delete(`/landing/notices/${id}`);
 
       if (data.success) {
         setNotices(notices.filter(n => n.id !== id));
@@ -453,7 +453,7 @@ const LandingPageEdit = () => {
 
   const toggleNoticeActive = async (notice: Notice) => {
     try {
-      const { data } = await api.put(`/api/landing/notices/${notice.id}`, { 
+      const { data } = await api.put(`/landing/notices/${notice.id}`, { 
         ...notice, 
         is_active: !notice.is_active 
       });
