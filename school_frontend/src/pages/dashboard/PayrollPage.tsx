@@ -44,15 +44,14 @@ const PayrollPage = () => {
     const fetchExpenses = async () => {
       try {
         const { data } = await api.get('/api/expenses');
-          // Convert amount to number
-          const formattedData = data.map((exp: any) => ({
-            ...exp,
-            amount: parseFloat(exp.amount),
-            description: exp.title || exp.description,
-            recordedAt: new Date(exp.created_at).toLocaleString('en-IN')
-          }));
-          setExpenses(formattedData);
-        }
+        // Convert amount to number
+        const formattedData = data.map((exp: any) => ({
+          ...exp,
+          amount: parseFloat(exp.amount),
+          description: exp.title || exp.description,
+          recordedAt: new Date(exp.created_at).toLocaleString('en-IN')
+        }));
+        setExpenses(formattedData);
       } catch (e) {
         console.error("Error loading expenses:", e);
       }

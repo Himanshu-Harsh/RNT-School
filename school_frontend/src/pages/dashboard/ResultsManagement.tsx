@@ -103,6 +103,9 @@ const ResultsManagement = () => {
   const examTypes = ["Mid Term", "Final Term", "Unit Test 1", "Unit Test 2", "Unit Test 3", "Pre-Board", "Board Exam"];
 
   // Load grading config from database on mount
+  useEffect(() => {
+    const fetchGradingConfig = async () => {
+      try {
         const { data } = await api.get('/api/settings/grading_config');
         
         if (data) {
@@ -136,8 +139,6 @@ const ResultsManagement = () => {
               console.error('Failed to parse grading config:', parseError, data.setting_value);
             }
           }
-        } else if (response.status !== 404) {
-          console.error('Failed to load grading config:', response.statusText);
         }
       } catch (error) {
         console.error('Failed to load grading config:', error);

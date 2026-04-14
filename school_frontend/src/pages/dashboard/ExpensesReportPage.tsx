@@ -29,13 +29,12 @@ const ExpensesReportPage = () => {
     const fetchExpenses = async () => {
       try {
         const { data } = await api.get('/api/expenses');
-          const formattedData = data.map((exp: any) => ({
-            ...exp,
-            amount: parseFloat(exp.amount),
-            description: exp.title || exp.description
-          }));
-          setSchoolExpenses(formattedData);
-        }
+        const formattedData = data.map((exp: any) => ({
+          ...exp,
+          amount: parseFloat(exp.amount),
+          description: exp.title || exp.description
+        }));
+        setSchoolExpenses(formattedData);
       } catch (e) {
         console.error("Error loading expenses:", e);
       }
