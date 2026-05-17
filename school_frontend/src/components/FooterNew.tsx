@@ -37,7 +37,7 @@ const FooterNew = () => {
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          
+
           {/* School Info */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
@@ -77,8 +77,8 @@ const FooterNew = () => {
                 <li key={i}>
                   <a
                     href={link.href}
-                    onClick={(e) => { 
-                      e.preventDefault(); 
+                    onClick={(e) => {
+                      e.preventDefault();
                       if (link.isPage) {
                         navigate(link.href);
                         window.scrollTo(0, 0);
@@ -115,9 +115,9 @@ const FooterNew = () => {
               </li>
               <li className="flex items-start gap-3 text-slate-400">
                 <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                <a 
-                  href="https://maps.app.goo.gl/jx5t3qSrGjTLxv196" 
-                  target="_blank" 
+                <a
+                  href="https://maps.app.goo.gl/jx5t3qSrGjTLxv196"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-primary transition-colors"
                 >
@@ -140,7 +140,7 @@ const FooterNew = () => {
             <p className="text-sm text-slate-400 mb-4">
               Enroll your child today for a bright future! Limited seats available.
             </p>
-            <Button 
+            <Button
               onClick={() => navigate("/admission/apply")}
               className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
             >
@@ -159,7 +159,7 @@ const FooterNew = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-2 text-xs text-slate-500">
             <p>© 2026 R.N.T. Public School. All Rights Reserved.</p>
-            <p className="text-slate-400 font-medium">Developed by <span className="text-primary">Prakash Kumar Thakur</span></p>
+            <p className="text-slate-400 font-medium">Developed by <span className="text-primary">Harsh</span></p>
             <p>Made with ❤️ for Better Education</p>
           </div>
         </div>
